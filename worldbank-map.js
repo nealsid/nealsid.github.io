@@ -12,43 +12,61 @@ function chooseColorForViolenceType(type_of_violence) {
     }
 }
 var heatmap_data = [];
+var heatmap = null;
+var aid_markers = [];
+var conflict_markers = [];
+function clearAllOverlays() {
+    if (heatmap != null) {
+	heatmap.setMap(null);
+	heatmap = null;
+    }
+    for (var i = 0; i < aid_markers.length; ++i) {
+	aid_markers[i].setMap(null);
+    }
+    aid_markers = [];
+    for (var i = 0; i < conflict_markers.length; ++i) {
+	conflict_markers[i].setMap(null);
+    }
+    conflict_markers = [];
+}
 
 function addMarkerAndInfo(map, latLong, title, start_date, end_date, estimated_deaths, type_of_violence, total_deaths) {
     var iconString = chooseColorForViolenceType(type_of_violence);
-    var weight_location = {
-	location: latLong,
-	weight: (estimated_deaths / total_deaths) * 10000
-    };
-    heatmap_data.push(weight_location);
-    // var marker = new google.maps.Marker({
-    // 	position: latLong,
-    // 	map: map,
-    // 	icon: iconString
-    // });
-    // content_string = title
-    // if (start_date != null) {
-    // 	content_string += "<br>" + start_date + "-";
-    // } else {
-    // 	content_string += "-";
-    // }
-    // if (end_date != null) {
-    // 	content_string += end_date + "<br>";
-    // } else { 
-    // 	content_string += "<br>";
-    // }
-    // if (estimated_deaths != null) { 
-    // 	content_string += "Estimated deaths: " + estimated_deaths + "<br>";
-    // }
-    // var infowindow = new google.maps.InfoWindow({
-    // 	content: content_string
-    // });
-    // google.maps.event.addListener(marker, 'click', function() {
-    // 	if (openedInfoWindow != null) {
-    // 	    openedInfoWindow.close();
-    // 	}
-    // 	infowindow.open(map, marker);
-    // 	openedInfoWindow = infowindow;
-    // });
+    // var weight_location = {
+    // 	location: latLong,
+    // 	weight: (estimated_deaths / total_deaths) * 10000
+    // };
+    // heatmap_data.push(weight_location);
+    var marker = new google.maps.Marker({
+    	position: latLong,
+    	map: map,
+    	icon: iconString
+    });
+    content_string = title
+    if (start_date != null) {
+    	content_string += "<br>" + start_date + "-";
+    } else {
+    	content_string += "-";
+    }
+    if (end_date != null) {
+    	content_string += end_date + "<br>";
+    } else { 
+    	content_string += "<br>";
+    }
+    if (estimated_deaths != null) { 
+    	content_string += "Estimated deaths: " + estimated_deaths + "<br>";
+    }
+    var infowindow = new google.maps.InfoWindow({
+    	content: content_string
+    });
+    conflict_markers.push(marker);
+    google.maps.event.addListener(marker, 'click', function() {
+    	if (openedInfoWindow != null) {
+    	    openedInfoWindow.close();
+    	}
+    	infowindow.open(map, marker);
+    	openedInfoWindow = infowindow;
+    });
 }
 var lastCircleInfoWindow = null;
 function addCircleClickHandler(map, circ, aid_amount) {
@@ -65,21 +83,10 @@ function addCircleClickHandler(map, circ, aid_amount) {
 	infowindow.open(map);
     });
 }
-var nigeria_aid = null;
 var map = null;
 
-function csvFetchSuccess(data, status, xhrobj) {
-    nigeria_aid = new String(data);
-}
-
-function initialize() {
-    var mapOptions = {
-        center: new google.maps.LatLng(-34.397, 150.644),
-        zoom: 8
-    };
-    var map = new google.maps.Map(document.getElementById("map-canvas"),
-				  mapOptions);
-
+function fetchAndDisplayArmedConflict() {
+    clearAllOverlays();
     $.ajax({
 	url:'armed-conflict.csv',
 	type:'get',
@@ -107,63 +114,96 @@ function initialize() {
 		    map.setCenter(latLong);
 		}
 	    }
-	    // var pointArray = new google.maps.MVCArray(heatmap_data);
 
-	    heatmap = new google.maps.visualization.HeatmapLayer({
-		data: heatmap_data,
-	    });   
-	    heatmap.setMap(map);
-	    heatmap.set('radius', 30);
-	    var gradient = [
-		'rgba(0, 255, 255, 0)',
-		'rgba(0, 255, 255, 1)',
-		'rgba(0, 191, 255, 1)',
-		'rgba(0, 127, 255, 1)',
-		'rgba(0, 63, 255, 1)',
-		'rgba(0, 0, 255, 1)',
-		'rgba(0, 0, 223, 1)',
-		'rgba(0, 0, 191, 1)',
-		'rgba(0, 0, 159, 1)',
-		'rgba(0, 0, 127, 1)',
-		'rgba(63, 0, 91, 1)',
-		'rgba(127, 0, 63, 1)',
-		'rgba(191, 0, 31, 1)',
-		'rgba(255, 0, 0, 1)'
-	    ]
-	    heatmap.set('gradient', heatmap.get('gradient') ? null : gradient);
+	    // heatmap = new google.maps.visualization.HeatmapLayer({
+	    // 	data: heatmap_data,
+	    // });   
+	    // heatmap.setMap(map);
+	    // heatmap.set('radius', 30);
+	    // var gradient = [
+	    // 	'rgba(0, 255, 255, 0)',
+	    // 	'rgba(0, 255, 255, 1)',
+	    // 	'rgba(0, 191, 255, 1)',
+	    // 	'rgba(0, 127, 255, 1)',
+	    // 	'rgba(0, 63, 255, 1)',
+	    // 	'rgba(0, 0, 255, 1)',
+	    // 	'rgba(0, 0, 223, 1)',
+	    // 	'rgba(0, 0, 191, 1)',
+	    // 	'rgba(0, 0, 159, 1)',
+	    // 	'rgba(0, 0, 127, 1)',
+	    // 	'rgba(63, 0, 91, 1)',
+	    // 	'rgba(127, 0, 63, 1)',
+	    // 	'rgba(191, 0, 31, 1)',
+	    // 	'rgba(255, 0, 0, 1)'
+	    // ]
+	    // heatmap.set('gradient', heatmap.get('gradient') ? null : gradient);
 	}
     });
-    // for(i = 1; i < worldbank.length; ++i) {
-    // 	try {
-    // 	    csv = $.csv.toArray(worldbank[i]);
-    // 	} catch (err) {
-    // 	    continue;
-    // 	}
-    // 	if (csv[9] == "" || csv[26] == "") {
-    // 	    continue;
-    // 	}
-    // 	var latLong = new google.maps.LatLng(csv[26], csv[9]);
-    // 	var amount = csv[23];
-    // 	if (amount == "") {
-    // 	    var radius = 500;
-    // 	} else {
-    // 	    var radius = 50 * amount;
-    // 	}
-    // 	var worldbankProjectCircle = {
-    // 	    strokeColor: '#FF0000',
-    // 	    strokeOpacity: 0.5,
-    // 	    strokeWeight: 1,
-    // 	    fillColor: '#DDDDFF',
-    // 	    fillOpacity: 0.35,
-    // 	    map: map,
-    // 	    center: latLong,
-    // 	    radius: radius,
-    // 	    clickable: true
-    // 	};
-    // 	cityCircle = new google.maps.Circle(worldbankProjectCircle);	  
-    // 	if (amount != "") {
-    // 	    addCircleClickHandler(map, cityCircle, amount);
-    // 	}
-    // }
+}
+
+function fetchAndDisplayWorldbankAidData() {
+    clearAllOverlays();
+    $.ajax({
+	url:'worldbank-nigeria-aid.csv',
+	type:'get',
+	dataType:'text',
+	success:function onSuccess(data, status, xhrobj) {
+	    var worldbank = data.split("\n");
+	    for(i = 1; i < worldbank.length; ++i) {
+    		try {
+    		    csv = $.csv.toArray(worldbank[i]);
+    		} catch (err) {
+    		    continue;
+    		}
+    		if (csv[9] == "" || csv[26] == "") {
+    		    continue;
+    		}
+    		var latLong = new google.maps.LatLng(csv[26], csv[9]);
+    		var amount = csv[23];
+    		if (amount == "") {
+    		    var radius = 500;
+    		} else {
+    		    var radius = 50 * amount;
+    		}
+    		var worldbankProjectCircle = {
+    		    strokeColor: '#FF0000',
+    		    strokeOpacity: 0.5,
+    		    strokeWeight: 1,
+    		    fillColor: '#DDDDFF',
+    		    fillOpacity: 0.35,
+    		    map: map,
+    		    center: latLong,
+    		    radius: radius,
+    		    clickable: true
+    		};
+    		cityCircle = new google.maps.Circle(worldbankProjectCircle);	  
+		aid_markers.push(cityCircle);
+    		if (amount != "") {
+    		    addCircleClickHandler(map, cityCircle, amount);
+    		}
+	    }
+	}
+    });
+}
+
+function initialize() {
+    var mapOptions = {
+        center: new google.maps.LatLng(-34.397, 150.644),
+        zoom: 8
+    };
+    map = new google.maps.Map(document.getElementById("map-canvas"),
+				  mapOptions);
+
+    fetchAndDisplayArmedConflict();
+    $(function() {
+	$( "#radio" ).buttonset();
+    });
+
 }
 google.maps.event.addDomListener(window, 'load', initialize);
+$(window).resize(function () {
+    var h = $(window).height(),
+    offsetTop = 60; // Calculate the top offset
+
+    $('#map-canvas').css('height', (h - offsetTop));
+}).resize();
