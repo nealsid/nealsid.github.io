@@ -213,25 +213,47 @@ var preSlideValues = [];
 var postSlideValues = [];
 
 $("#slider").on("slidestart", function(event, ui) {
+    console.log("start: " + ui.values);
+    console.log("start: " + ui.value);
     preSlideValues = $("#slider").slider("values");
 });
-$( "#slider" ).on("slidestop", function( event, ui ) { 
+var delta = -1;
+$("#slider").on("slide", function(event, ui) {
+    console.log("change: " + ui.values);
+    console.log("change: " + ui.value);
     postSlideValues = $("#slider").slider("values");
-    if (postSlideValues[1] != preSlideValues[1]) {
-	var delta = postSlideValues[1] - preSlideValues[1];
+    console.log("change: " + preSlideValues);
+    console.log("change: " + postSlideValues);
+    if (ui.values[1] != preSlideValues[1]) {
+	delta = ui.value - preSlideValues[1];
+	console.log("middle delta: " + delta);
 	// First check if this would cause either endpoint slider to
 	// be out of range
 	var sliderMax = $("#slider").slider("option", "max");
 	var sliderMin = $("#slider").slider("option", "min");
 	if (postSlideValues[2] + delta > sliderMax ||
 	    postSlideValues[0] + delta < sliderMin) {
+	    console.log("cancelling");
+	    delta = -1;
 	    return false;
 	}
+    } else {
+	delta = -1;
+    }
+    updateSliderBoxes(ui.values[0], ui.values[2]);
+});
+
+$("#slider").on("slidestop", function(event, ui) {
+    console.log("slide stop: " + delta);
+    postSlideValues = $("#slider").slider("values");
+    if (delta != -1) {
+	console.log("change slider 2: " + parseInt(ui.values[2] + delta));
+	console.log("change slider 0: " + parseInt(ui.values[0] + delta));
 	// This is the case where the user moved the middle slider.
 	$("#slider").slider("values", 2, postSlideValues[2] + delta);
 	$("#slider").slider("values", 0, postSlideValues[0] + delta);
+	delta = -1;
     }
-    updateSliderBoxes(ui.values[0], ui.values[2]);
 });
 
 updateSliderBoxes($("#slider").slider("values")[0],$("#slider").slider("values")[2]);
@@ -242,3 +264,4 @@ function updateSliderBoxes(lowerBound, upperBound) {
 
 function mimicRangeSlider(event, ui) {
 }
+
