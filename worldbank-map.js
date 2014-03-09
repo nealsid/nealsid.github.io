@@ -207,3 +207,38 @@ $(window).resize(function () {
 
     $('#map-canvas').css('height', (h - offsetTop));
 }).resize();
+
+$( "#slider" ).slider({ values: [1995, 2000, 2005], min: 1989, max: 2010 });
+var preSlideValues = [];
+var postSlideValues = [];
+
+$("#slider").on("slidestart", function(event, ui) {
+    preSlideValues = $("#slider").slider("values");
+});
+$( "#slider" ).on("slidestop", function( event, ui ) { 
+    postSlideValues = $("#slider").slider("values");
+    if (postSlideValues[1] != preSlideValues[1]) {
+	var delta = postSlideValues[1] - preSlideValues[1];
+	// First check if this would cause either endpoint slider to
+	// be out of range
+	var sliderMax = $("#slider").slider("option", "max");
+	var sliderMin = $("#slider").slider("option", "min");
+	if (postSlideValues[2] + delta > sliderMax ||
+	    postSlideValues[0] + delta < sliderMin) {
+	    return false;
+	}
+	// This is the case where the user moved the middle slider.
+	$("#slider").slider("values", 2, postSlideValues[2] + delta);
+	$("#slider").slider("values", 0, postSlideValues[0] + delta);
+    }
+    updateSliderBoxes(ui.values[0], ui.values[2]);
+});
+
+updateSliderBoxes($("#slider").slider("values")[0],$("#slider").slider("values")[2]);
+
+function updateSliderBoxes(lowerBound, upperBound) {
+    $( "#amount" ).val( "Year " + lowerBound + " - " + upperBound);
+}
+
+function mimicRangeSlider(event, ui) {
+}
