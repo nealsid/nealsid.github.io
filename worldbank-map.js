@@ -30,6 +30,9 @@ function clearAllOverlays() {
     conflict_markers = [];
 }
 
+var start_year = 1989;
+var end_year = 2010;
+
 function addMarkerAndInfo(map, latLong, title, start_date, end_date, estimated_deaths, type_of_violence, total_deaths) {
     var iconString = chooseColorForViolenceType(type_of_violence);
     // var weight_location = {
@@ -109,9 +112,10 @@ function fetchAndDisplayArmedConflict() {
 		    continue;
 		}
 		var latLong = new google.maps.LatLng(csv[25], csv[26]);
-		addMarkerAndInfo(map, latLong, csv[9], csv[29], csv[30], csv[37], csv[5], total_deaths);
-		if (i == 1) {
-		    map.setCenter(latLong);
+		var conflict_start = (new Date(Date.parse(csv[29]))).getFullYear();
+		var conflict_end = (new Date(Date.parse(csv[30]))).getFullYear();
+		if (conflict_start >= start_year && conflict_end <= end_year) {
+		    addMarkerAndInfo(map, latLong, csv[9], csv[29], csv[30], csv[37], csv[5], total_deaths);
 		}
 	    }
 
@@ -188,8 +192,8 @@ function fetchAndDisplayWorldbankAidData() {
 
 function initialize() {
     var mapOptions = {
-        center: new google.maps.LatLng(-34.397, 150.644),
-        zoom: 8
+        center: new google.maps.LatLng(9.81116261034776, 6.830652665784798),
+        zoom: 6
     };
     map = new google.maps.Map(document.getElementById("map-canvas"),
 				  mapOptions);
@@ -199,6 +203,13 @@ function initialize() {
 	$( "#radio" ).buttonset();
     });
 
+    var datasetLink = document.createElement('h4');
+    datasetLink.style.color = 'white';
+    datasetLink.innerHTML = '<a href="http://www.pcr.uu.se/research/ucdp/datasets/ucdp_ged/">Conflict Data from Uppsala Conflict Data Program\'s (UCDP) Georeferenced Events Database (GED)</a>';
+    var datasetDiv = document.createElement('div');
+    datasetDiv.appendChild(datasetLink);
+
+    map.controls[google.maps.ControlPosition.LEFT_BOTTOM].push(datasetDiv);
 }
 google.maps.event.addDomListener(window, 'load', initialize);
 $(window).resize(function () {
@@ -208,60 +219,46 @@ $(window).resize(function () {
     $('#map-canvas').css('height', (h - offsetTop));
 }).resize();
 
-$( "#slider" ).slider({ values: [1995, 2000, 2005], min: 1989, max: 2010 });
-var preSlideValues = [];
-var postSlideValues = [];
+$( "#slider" ).slider({ range: true, values: [1995, 2005], min: 1989, max: 2010 });
+// var preSlideValues = [];
+// var postSlideValues = [];
 
-$("#slider").on("slidestart", function(event, ui) {
-    console.log("start: " + ui.values);
-    console.log("start: " + ui.value);
-    preSlideValues = $("#slider").slider("values");
-});
+// var x1,y1,x2,y2;
+// var slider = $("#slider").children(".ui-slider-handle");
+// y1 = slider.offset().top;
+// x1 = slider.offset().left;
+// y2 = slider.offset().top;
+// x2 = slider.offset().left + 50;
+// createLine(x1, y1, x2, y2);
+
 var delta = -1;
 $("#slider").on("slide", function(event, ui) {
-    console.log("change: " + ui.values);
-    console.log("change: " + ui.value);
-    postSlideValues = $("#slider").slider("values");
-    console.log("change: " + preSlideValues);
-    console.log("change: " + postSlideValues);
-    if (ui.values[1] != preSlideValues[1]) {
-	delta = ui.value - preSlideValues[1];
-	console.log("middle delta: " + delta);
-	// First check if this would cause either endpoint slider to
-	// be out of range
-	var sliderMax = $("#slider").slider("option", "max");
-	var sliderMin = $("#slider").slider("option", "min");
-	if (postSlideValues[2] + delta > sliderMax ||
-	    postSlideValues[0] + delta < sliderMin) {
-	    console.log("cancelling");
-	    delta = -1;
-	    return false;
-	}
-    } else {
-	delta = -1;
-    }
-    updateSliderBoxes(ui.values[0], ui.values[2]);
+    updateSliderBoxes(ui.values[0], ui.values[1]);
+    start_year = parseInt(ui.values[0]);
+    end_year = parseInt(ui.values[1]);
+    fetchAndDisplayArmedConflict();
 });
 
-$("#slider").on("slidestop", function(event, ui) {
-    console.log("slide stop: " + delta);
-    postSlideValues = $("#slider").slider("values");
-    if (delta != -1) {
-	console.log("change slider 2: " + parseInt(ui.values[2] + delta));
-	console.log("change slider 0: " + parseInt(ui.values[0] + delta));
-	// This is the case where the user moved the middle slider.
-	$("#slider").slider("values", 2, postSlideValues[2] + delta);
-	$("#slider").slider("values", 0, postSlideValues[0] + delta);
-	delta = -1;
-    }
-});
-
-updateSliderBoxes($("#slider").slider("values")[0],$("#slider").slider("values")[2]);
+updateSliderBoxes($("#slider").slider("values")[0],$("#slider").slider("values")[1]);
 
 function updateSliderBoxes(lowerBound, upperBound) {
-    $( "#amount" ).val( "Year " + lowerBound + " - " + upperBound);
+    $( "#amount" ).val( lowerBound + " - " + upperBound);
 }
 
-function mimicRangeSlider(event, ui) {
-}
+// function createLine(x1,y1, x2,y2){
+//     var length = Math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
+//     var angle  = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+//     var transform = 'rotate('+angle+'deg)';
 
+//     var line = $('<div>')
+//         .appendTo('#page')
+//         .addClass('line')
+//         .css({
+//             'position': 'absolute',
+//             'transform': transform
+//         })
+//         .width(length)
+//         .offset({left: x1, top: y1});
+
+//     return line;
+// }
