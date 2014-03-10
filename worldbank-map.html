@@ -29,6 +29,10 @@
 	    <input type="radio" id="radio2" name="radio" onclick="fetchAndDisplayWorldbankAidData();"><label for="radio2">Aid</label>
 	    <div id="slider"></div>
 	    <input id="amount"/>
+	    <input type="radio" id="allTypes" name="conflictType" checked="checked"><label for="allTypes" onclick="fetchAndDisplayArmedConflict(ConflictTypes.ALL);">All types</label>
+	    <input type="radio" id="stateSponsored" name="conflictType" onclick="fetchAndDisplayArmedConflict(ConflictTypes.STATE);"><label for="stateSponsored">State-sponsored</label>
+	    <input type="radio" id="nonState" name="conflictType" onclick="fetchAndDisplayArmedConflict(ConflictTypes.NON_STATE);"><label for="nonState">Non state sponsored</label>
+	    <input type="radio" id="oneSided" name="conflictType" onclick="fetchAndDisplayArmedConflict(ConflictTypes.ONE_SIDED);"><label for="oneSided">One-sided</label>
 	  </div>    
 	</div>
 	

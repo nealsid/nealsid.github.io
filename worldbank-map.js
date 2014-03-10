@@ -1,13 +1,20 @@
 // Type of violence: 1 - state based, 2 - non-state based, 3 - one-sided
+ConflictTypes = {
+    STATE : 0,
+    NON_STATE : 1,
+    ONE_SIDED : 2,
+    ALL : 3
+}
+
 var openedInfoWindow = null;
 function chooseColorForViolenceType(type_of_violence) {
-    if (type_of_violence == 1) { 
+    if (type_of_violence == ConflictTypes.STATE) { 
 	return "http://maps.google.com/mapfiles/ms/icons/red-dot.png";
     }
-    if (type_of_violence == 2) {
+    if (type_of_violence == ConflictTypes.NON_STATE) {
 	return "http://maps.google.com/mapfiles/ms/icons/blue-dot.png";
     }
-    if (type_of_violence == 3) {
+    if (type_of_violence == ConflictTypes.ONE_SIDED) {
 	return "http://maps.google.com/mapfiles/ms/icons/orange-dot.png";
     }
 }
@@ -34,6 +41,7 @@ var start_year = 1989;
 var end_year = 2010;
 
 function addMarkerAndInfo(map, latLong, title, start_date, end_date, estimated_deaths, type_of_violence, total_deaths) {
+
     var iconString = chooseColorForViolenceType(type_of_violence);
     // var weight_location = {
     // 	location: latLong,
@@ -87,9 +95,14 @@ function addCircleClickHandler(map, circ, aid_amount) {
     });
 }
 var map = null;
-
-function fetchAndDisplayArmedConflict() {
+var selectedConflictType;
+function fetchAndDisplayArmedConflict(conflictType) {
+    if (conflictType == undefined) {
+	conflictType = ConflictTypes.ALL;
+    }
+    selectedConflictType = conflictType;
     clearAllOverlays();
+    
     $.ajax({
 	url:'armed-conflict.csv',
 	type:'get',
@@ -114,8 +127,18 @@ function fetchAndDisplayArmedConflict() {
 		var latLong = new google.maps.LatLng(csv[25], csv[26]);
 		var conflict_start = (new Date(Date.parse(csv[29]))).getFullYear();
 		var conflict_end = (new Date(Date.parse(csv[30]))).getFullYear();
-		if (conflict_start >= start_year && conflict_end <= end_year) {
-		    addMarkerAndInfo(map, latLong, csv[9], csv[29], csv[30], csv[37], csv[5], total_deaths);
+		var type_of_violence_string = csv[5];
+		var type_of_violence;
+		if (type_of_violence_string == "1") {
+		    type_of_violence = ConflictTypes.STATE;
+		} else if (type_of_violence_string == "2") {
+		    type_of_violence = ConflictTypes.NON_STATE;
+		} else if (type_of_violence_string == "3") {
+		    type_of_violence = ConflictTypes.ONE_SIDED;
+		}
+		if ((conflictType == ConflictTypes.ALL || conflictType == type_of_violence) 
+		    && conflict_start >= start_year && conflict_end <= end_year) {
+		    addMarkerAndInfo(map, latLong, csv[9], csv[29], csv[30], csv[37], type_of_violence, total_deaths);
 		}
 	    }
 
@@ -202,6 +225,9 @@ function initialize() {
     $(function() {
 	$( "#radio" ).buttonset();
     });
+    $(function() {
+	$( "#conflictType" ).buttonset();
+    });
 
     var datasetLink = document.createElement('h4');
     datasetLink.style.color = 'white';
@@ -236,7 +262,7 @@ $("#slider").on("slide", function(event, ui) {
     updateSliderBoxes(ui.values[0], ui.values[1]);
     start_year = parseInt(ui.values[0]);
     end_year = parseInt(ui.values[1]);
-    fetchAndDisplayArmedConflict();
+    fetchAndDisplayArmedConflict(selectedConflictType);
 });
 
 updateSliderBoxes($("#slider").slider("values")[0],$("#slider").slider("values")[1]);
