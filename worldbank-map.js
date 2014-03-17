@@ -1,10 +1,10 @@
 // Type of violence: 1 - state based, 2 - non-state based, 3 - one-sided
-ConflictTypes = {
+var ConflictTypes = {
     STATE : 0,
     NON_STATE : 1,
     ONE_SIDED : 2,
     ALL : 3
-}
+};
 
 var openedInfoWindow = null;
 function chooseColorForViolenceType(type_of_violence) {
@@ -17,7 +17,9 @@ function chooseColorForViolenceType(type_of_violence) {
     if (type_of_violence == ConflictTypes.ONE_SIDED) {
 	return "http://maps.google.com/mapfiles/ms/icons/orange-dot.png";
     }
-}
+    return null;
+};
+
 var heatmap_data = [];
 var heatmap = null;
 var aid_markers = [];
@@ -31,7 +33,7 @@ function clearAllOverlays() {
 	aid_markers[i].setMap(null);
     }
     aid_markers = [];
-    for (var i = 0; i < conflict_markers.length; ++i) {
+    for (i = 0; i < conflict_markers.length; ++i) {
 	conflict_markers[i].setMap(null);
     }
     conflict_markers = [];
@@ -53,7 +55,7 @@ function addMarkerAndInfo(map, latLong, title, start_date, end_date, estimated_d
     	map: map,
     	icon: iconString
     });
-    content_string = title
+    var content_string = title;
     if (start_date != null) {
     	content_string += "<br>" + start_date + "-";
     } else {
@@ -219,23 +221,12 @@ function initialize() {
         zoom: 6
     };
     map = new google.maps.Map(document.getElementById("map-canvas"),
-				  mapOptions);
+			      mapOptions);
 
     fetchAndDisplayArmedConflict();
     $(function() {
-	$( "#radio" ).buttonset();
-    });
-    $(function() {
 	$( "#conflictType" ).buttonset();
     });
-
-    var datasetLink = document.createElement('h4');
-    datasetLink.style.color = 'white';
-    datasetLink.innerHTML = '<a href="http://www.pcr.uu.se/research/ucdp/datasets/ucdp_ged/">Conflict Data from Uppsala Conflict Data Program\'s (UCDP) Georeferenced Events Database (GED)</a>';
-    var datasetDiv = document.createElement('div');
-    datasetDiv.appendChild(datasetLink);
-
-    map.controls[google.maps.ControlPosition.LEFT_BOTTOM].push(datasetDiv);
 }
 google.maps.event.addDomListener(window, 'load', initialize);
 $(window).resize(function () {
@@ -246,11 +237,8 @@ $(window).resize(function () {
 }).resize();
 
 $( "#slider" ).slider({ range: true, values: [1995, 2005], min: 1989, max: 2010 });
-// var preSlideValues = [];
-// var postSlideValues = [];
-
-// var x1,y1,x2,y2;
-// var slider = $("#slider").children(".ui-slider-handle");
+var x1,y1,x2,y2;
+var slider = $("#slider").children(".ui-slider-handle");
 // y1 = slider.offset().top;
 // x1 = slider.offset().left;
 // y2 = slider.offset().top;
@@ -268,23 +256,23 @@ $("#slider").on("slide", function(event, ui) {
 updateSliderBoxes($("#slider").slider("values")[0],$("#slider").slider("values")[1]);
 
 function updateSliderBoxes(lowerBound, upperBound) {
-    $( "#amount" ).val( lowerBound + " - " + upperBound);
+    $( "#amount" ).text(lowerBound + " - " + upperBound);
 }
 
-// function createLine(x1,y1, x2,y2){
-//     var length = Math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
-//     var angle  = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
-//     var transform = 'rotate('+angle+'deg)';
+function createLine(x1,y1, x2,y2){
+    var length = Math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
+    var angle  = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+    var transform = 'rotate('+angle+'deg)';
 
-//     var line = $('<div>')
-//         .appendTo('#page')
-//         .addClass('line')
-//         .css({
-//             'position': 'absolute',
-//             'transform': transform
-//         })
-//         .width(length)
-//         .offset({left: x1, top: y1});
+    var line = $('<div>')
+        .appendTo('#page')
+        .addClass('line')
+        .css({
+            'position': 'absolute',
+            'transform': transform
+        })
+        .width(length)
+        .offset({left: x1, top: y1});
 
-//     return line;
-// }
+    return line;
+}
