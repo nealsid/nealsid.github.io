@@ -21,9 +21,9 @@
     <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
   </head>
   <body>
-    <div class="container">
+    <div class="container-fluid">
        <div class="row">
-	 <div class="col-md-3">
+	 <div class="col-md-2 col-sm-3 col-xs-3">
 	   <center><h3>Display Options</h3>
 	   </center>
 	   <div id="displayOptions" style="padding-top:20px">
@@ -35,13 +35,13 @@
 	     <input type="radio" id="stateSponsored" name="conflictType" onclick="fetchAndDisplayArmedConflict(ConflictTypes.STATE);"><label for="stateSponsored">State-sponsored</label><br>
 	     <input type="radio" id="nonState" name="conflictType" onclick="fetchAndDisplayArmedConflict(ConflictTypes.NON_STATE);"><label for="nonState">Non state sponsored</label><br>
 	     <input type="radio" id="oneSided" name="conflictType" onclick="fetchAndDisplayArmedConflict(ConflictTypes.ONE_SIDED);"><label for="oneSided">One-sided</label>
-	   </div>    
+	   </div>
 	 </div>
 
-	 <div class="col-md-7">
+	 <div class="col-md-7 col-sm-7 col-xs-7">
 	   <div id="map-canvas"></div>
 	 </div>
-	 <div class="col-md-2">
+	 <div class="col-md-2 col-sm-2 col-xs-2">
 	   <div class="row">
 	     <div id="conflictlegend" style="padding-top: 20px; padding-bottom: 20px;">
 	       <img style="margin: 4px 4px;" src="http://maps.google.com/mapfiles/ms/icons/red-dot.png"/>State sponsored<br>

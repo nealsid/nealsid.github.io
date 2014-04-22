@@ -8,7 +8,7 @@ var ConflictTypes = {
 
 var openedInfoWindow = null;
 function chooseColorForViolenceType(type_of_violence) {
-    if (type_of_violence == ConflictTypes.STATE) { 
+    if (type_of_violence == ConflictTypes.STATE) {
 	return "http://maps.google.com/mapfiles/ms/icons/red-dot.png";
     }
     if (type_of_violence == ConflictTypes.NON_STATE) {
@@ -45,42 +45,43 @@ var end_year = 2010;
 function addMarkerAndInfo(map, latLong, title, start_date, end_date, estimated_deaths, type_of_violence, total_deaths) {
 
     var iconString = chooseColorForViolenceType(type_of_violence);
-    // var weight_location = {
-    // 	location: latLong,
-    // 	weight: (estimated_deaths / total_deaths) * 10000
-    // };
-    // heatmap_data.push(weight_location);
-    var marker = new google.maps.Marker({
-    	position: latLong,
-    	map: map,
-    	icon: iconString
-    });
-    var content_string = title;
-    if (start_date != null) {
-    	content_string += "<br>" + start_date + "-";
-    } else {
-    	content_string += "-";
-    }
-    if (end_date != null) {
-    	content_string += end_date + "<br>";
-    } else { 
-    	content_string += "<br>";
-    }
-    if (estimated_deaths != null) { 
-    	content_string += "Estimated deaths: " + estimated_deaths + "<br>";
-    }
-    var infowindow = new google.maps.InfoWindow({
-    	content: content_string
-    });
-    conflict_markers.push(marker);
-    google.maps.event.addListener(marker, 'click', function() {
-    	if (openedInfoWindow != null) {
-    	    openedInfoWindow.close();
-    	}
-    	infowindow.open(map, marker);
-    	openedInfoWindow = infowindow;
-    });
+    var weight_location = {
+    	location: latLong,
+    	weight: (estimated_deaths / total_deaths) * 10000
+    };
+    heatmap_data.push(weight_location);
+    // var marker = new google.maps.Marker({
+    // 	position: latLong,
+    // 	map: map,
+    // 	icon: iconString
+    // });
+    // var content_string = title;
+    // if (start_date != null) {
+    // 	content_string += "<br>" + start_date + "-";
+    // } else {
+    // 	content_string += "-";
+    // }
+    // if (end_date != null) {
+    // 	content_string += end_date + "<br>";
+    // } else {
+    // 	content_string += "<br>";
+    // }
+    // if (estimated_deaths != null) {
+    // 	content_string += "Estimated deaths: " + estimated_deaths + "<br>";
+    // }
+    // var infowindow = new google.maps.InfoWindow({
+    // 	content: content_string
+    // });
+    // conflict_markers.push(marker);
+    // google.maps.event.addListener(marker, 'click', function() {
+    // 	if (openedInfoWindow != null) {
+    // 	    openedInfoWindow.close();
+    // 	}
+    // 	infowindow.open(map, marker);
+    // 	openedInfoWindow = infowindow;
+    // });
 }
+
 var lastCircleInfoWindow = null;
 function addCircleClickHandler(map, circ, aid_amount) {
     var infowindow = new google.maps.InfoWindow({
@@ -104,7 +105,7 @@ function fetchAndDisplayArmedConflict(conflictType) {
     }
     selectedConflictType = conflictType;
     clearAllOverlays();
-    
+
     $.ajax({
 	url:'armed-conflict.csv',
 	type:'get',
@@ -138,34 +139,34 @@ function fetchAndDisplayArmedConflict(conflictType) {
 		} else if (type_of_violence_string == "3") {
 		    type_of_violence = ConflictTypes.ONE_SIDED;
 		}
-		if ((conflictType == ConflictTypes.ALL || conflictType == type_of_violence) 
+		if ((conflictType == ConflictTypes.ALL || conflictType == type_of_violence)
 		    && conflict_start >= start_year && conflict_end <= end_year) {
 		    addMarkerAndInfo(map, latLong, csv[9], csv[29], csv[30], csv[37], type_of_violence, total_deaths);
 		}
 	    }
 
-	    // heatmap = new google.maps.visualization.HeatmapLayer({
-	    // 	data: heatmap_data,
-	    // });   
-	    // heatmap.setMap(map);
-	    // heatmap.set('radius', 30);
-	    // var gradient = [
-	    // 	'rgba(0, 255, 255, 0)',
-	    // 	'rgba(0, 255, 255, 1)',
-	    // 	'rgba(0, 191, 255, 1)',
-	    // 	'rgba(0, 127, 255, 1)',
-	    // 	'rgba(0, 63, 255, 1)',
-	    // 	'rgba(0, 0, 255, 1)',
-	    // 	'rgba(0, 0, 223, 1)',
-	    // 	'rgba(0, 0, 191, 1)',
-	    // 	'rgba(0, 0, 159, 1)',
-	    // 	'rgba(0, 0, 127, 1)',
-	    // 	'rgba(63, 0, 91, 1)',
-	    // 	'rgba(127, 0, 63, 1)',
-	    // 	'rgba(191, 0, 31, 1)',
-	    // 	'rgba(255, 0, 0, 1)'
-	    // ]
-	    // heatmap.set('gradient', heatmap.get('gradient') ? null : gradient);
+	    heatmap = new google.maps.visualization.HeatmapLayer({
+	    	data: heatmap_data,
+	    });
+	    heatmap.setMap(map);
+	    heatmap.set('radius', 30);
+	    var gradient = [
+	    	'rgba(0, 255, 255, 0)',
+	    	'rgba(0, 255, 255, 1)',
+	    	'rgba(0, 191, 255, 1)',
+	    	'rgba(0, 127, 255, 1)',
+	    	'rgba(0, 63, 255, 1)',
+	    	'rgba(0, 0, 255, 1)',
+	    	'rgba(0, 0, 223, 1)',
+	    	'rgba(0, 0, 191, 1)',
+	    	'rgba(0, 0, 159, 1)',
+	    	'rgba(0, 0, 127, 1)',
+	    	'rgba(63, 0, 91, 1)',
+	    	'rgba(127, 0, 63, 1)',
+	    	'rgba(191, 0, 31, 1)',
+	    	'rgba(255, 0, 0, 1)'
+	    ]
+	    heatmap.set('gradient', heatmap.get('gradient') ? null : gradient);
 	}
     });
 }
@@ -205,7 +206,7 @@ function fetchAndDisplayWorldbankAidData() {
     		    radius: radius,
     		    clickable: true
     		};
-    		cityCircle = new google.maps.Circle(worldbankProjectCircle);	  
+    		cityCircle = new google.maps.Circle(worldbankProjectCircle);
 		aid_markers.push(cityCircle);
     		if (amount != "") {
     		    addCircleClickHandler(map, cityCircle, amount);
@@ -223,7 +224,8 @@ function initialize() {
     map = new google.maps.Map(document.getElementById("map-canvas"),
 			      mapOptions);
 
-    fetchAndDisplayArmedConflict();
+//    fetchAndDisplayArmedConflict();
+    fetchAndDisplayWorldbankAidData();
     $(function() {
 	$( "#conflictType" ).buttonset();
     });
@@ -273,6 +275,5 @@ function createLine(x1,y1, x2,y2){
         })
         .width(length)
         .offset({left: x1, top: y1});
-
     return line;
 }
